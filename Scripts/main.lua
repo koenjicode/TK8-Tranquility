@@ -1,11 +1,11 @@
 local UEHelpers = require("UEHelpers")
 
 -- LUA SETTINGS #START
+streamerMode = true -- Disables players names from showing.
 
 hidePlayerRanks = true -- Hides player ranks from showing.
 hidePlayerPlates = false -- Hides player plates so they're not shown.
 hideTekkenPower = true -- Hides Tekken Power from showing.
-hideNames = false -- Disables names from showing, acts as a streamer mode as well!
 
 panelOffset = 285 -- The distance that the panel will be moved to when rank information is hidden.
 
@@ -21,15 +21,19 @@ defaultPanelPos = {
 
 
 function OnBattleHudUpdate()
+
+    -- We make sure game references for the hud are up to date before we do any changes.
     UpdateGameReferences()
 
+    -- Stop execution if we fail to get any of the required hud elements.
     if not PlayerHud:IsValid() then error("Player Hud cannot be found, Tranquility cannot make changes!") end
     if not WidgetLayoutLibrary:IsValid() then error("WidgetLayoutLibrary not valid, Tranquility cannot make changes!\n") end
 
+    -- Loop logic for P1 and P2
     for i = 1, 2 do
         local playerIndex = i - 1
 
-        if hideNames then
+        if streamerMode then
             AdjustFighterNames(playerIndex)
         end
 
@@ -62,8 +66,19 @@ function AdjustFighterNames(player)
 
     local charSel = string.sub(charImage.Brush.ResourceObject:GetFullName(), -3)
     local nameTexture = StaticFindObject("/Game/UI/Rep_Texture/HUD_Character_Name/T_UI_HUD_Character_Name_" .. charSel .. ".T_UI_HUD_Character_Name_" .. charSel)
-
     PlayerHud:SetFighterNameTexture(player, nameTexture)
+
+    local ghosticon = nil
+    if player == 0 then
+        ghosticon = PlayerHud.Ghost_Icon_L
+    else
+        ghosticon = PlayerHud.Gh_Icon_R
+    end
+
+    if ghosticon:IsValid() then
+        ghosticon:SetVisibility(2)
+    end
+
 end
 
 function AdjustTekkenPowerVisbility(player)
@@ -117,5 +132,10 @@ RegisterHook("/Game/UI/Widget/HUD/WBP_UI_HUD_Player.WBP_UI_HUD_Player_C:SetZoneC
    OnBattleHudUpdate()
 end)
 
+function PrintTest()
+    WidgetLayoutLibrary = StaticFindObject("/Script/Polaris.Default__WidgetLayoutLibrary")
+    print()
+end
+
 -- For testing updates.
-RegisterKeyBind(Key.F8, OnBattleHudUpdate)
+RegisterKeyBind(Key.F8, PrintTest)
