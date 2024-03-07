@@ -1,7 +1,6 @@
 local UEHelpers = require("UEHelpers")
 
 -- LUA SETTINGS #START
-toggleKeyBind = Key.F8 -- The key that's pressed to toggle your hud!
 
 hidePlayerRanks = true -- Hides player ranks from showing.
 hidePlayerPlates = false -- Hides player plates so they're not shown.
@@ -118,4 +117,5 @@ RegisterHook("/Game/UI/Widget/HUD/WBP_UI_HUD_Player.WBP_UI_HUD_Player_C:SetZoneC
    OnBattleHudUpdate()
 end)
 
-RegisterKeyBind(toggleKeyBind, OnBattleHudUpdate)
+-- For testing updates.
+RegisterKeyBind(Key.F8, OnBattleHudUpdate)
