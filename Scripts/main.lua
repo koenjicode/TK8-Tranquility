@@ -132,9 +132,47 @@ RegisterHook("/Game/UI/Widget/HUD/WBP_UI_HUD_Player.WBP_UI_HUD_Player_C:SetZoneC
    OnBattleHudUpdate()
 end)
 
+NotifyOnNewObject("/Script/Polaris.PolarisUMGMakuai", function(makuai)
+    -- print(string.format("Constructed: %s\n", makuai:GetFullName()))
+
+    ExecuteWithDelay(500, function()
+        -- print("Executed asynchronously after a 1 second delay\n")
+
+        for i = 1, 2 do
+            local playerInfo = nil
+            if i == 1 then
+                playerInfo = makuai.WBP_UI_PlayerInfo_L
+            else
+                playerInfo = makuai.WBP_UI_PlayerInfo_R
+            end
+
+            if streamerMode then
+                playerInfo:SetVisibility(2)
+            end
+
+            if not streamerMode then
+                if hidePlayerRanks then
+                    playerInfo.Rep_T_UI_CMN_RNK_S:SetVisibility(2)
+                end
+
+                if hideTekkenPower then
+                    playerInfo.BG_TekkenPower:SetVisibility(2)
+                    playerInfo.TB_TekkenPower:SetVisibility(2)
+                    playerInfo.TB_TekkenPower_data:SetVisibility(2)
+                end
+            end
+        end
+    end)
+end)
+
+-- RegisterHook("/Game/UI/Widget/Makuai/WBP_UI_Makuai.WBP_UI_Makuai_C:PlayAnimIn", function()
+
 function PrintTest()
-    WidgetLayoutLibrary = StaticFindObject("/Script/Polaris.Default__WidgetLayoutLibrary")
-    print()
+    local PolarisTAMFunctionLibrary = StaticFindObject("/Script/Polaris.Default__PolarisTAMFunctionLibrary")
+    if PolarisTAMFunctionLibrary:IsValid() then
+        local playerName = PolarisTAMFunctionLibrary:GetMyPlayerName()
+        print(playerName:ToString())
+    end
 end
 
 -- For testing updates.
