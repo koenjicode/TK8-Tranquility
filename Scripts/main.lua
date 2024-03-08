@@ -24,6 +24,7 @@ panelOffset = 285 -- The distance that the panel will be moved to when rank info
 WidgetLayoutLibrary = nil
 PolarisHud = nil
 PlayerHud = nil
+rankUpdated = false
 defaultPanelPos = {
     ["X"] = 625,
     ["Y"] = 362,
@@ -267,6 +268,24 @@ end)
 
 -- RegisterHook("/Game/UI/Widget/Makuai/WBP_UI_Makuai.WBP_UI_Makuai_C:PlayAnimIn", function()
 
+RegisterHook("/Game/UI/Widget/HUD/WBP_UI_HUD_Player.WBP_UI_HUD_Player_C:SetRank", function(Context, side, rank, change)
+
+    if not rankUpdated then
+        rankUpdated = true
+
+        print(string.format("Player Side: %s Rank: %s\n", side:get(), rank:get()))
+
+        if Context:get() then
+            -- print("Attempting to replace side.")
+            -- Context:get():SetRank(side:get(), rank:get(), 0)
+        end
+    end
+end)
+
+RegisterHook("/Script/Engine.PlayerController:ClientRestart", function()
+    rankUpdated = false
+end)
+
 function PrintTest()
     --[[
     local PolarisTAMFunctionLibrary = StaticFindObject("/Script/Polaris.Default__PolarisTAMFunctionLibrary")
@@ -276,6 +295,8 @@ function PrintTest()
     end
     ]]
 
+    --[[
+
     local rankProgress = FindFirstOf("WBP_UI_Result_RankProgress_C")
     if rankProgress:IsValid() then
         print("Rank progress found.")
@@ -283,6 +304,16 @@ function PrintTest()
     else
         print("No find!")
     end
+    ]]
+
+    --[[
+    local player = FindFirstOf("WBP_UI_HUD_C")
+    local ref_player = player.ref_player
+    if ref_player:IsValid() then
+        print("Rank change supposed to happen")
+        ref_player:SetRank(0, 22, 0)
+    end
+    ]]
 end
 
 -- For testing updates.
