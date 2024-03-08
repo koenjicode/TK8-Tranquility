@@ -227,7 +227,7 @@ NotifyOnNewObject("/Script/Polaris.PolarisUMGMakuai", function(makuai)
                     -- local characterName = character_codeTable[GetCharacterNameFromTexture(charNameTexture)]
                     -- print(string.format("Replaced Char Name with: %s", characterName))
                     ]]
-                    
+
                     playerInfo.TB_PlayerID:SetRawText("TEKKEN PLAYER", true)
                 end
             end
