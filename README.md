@@ -3,10 +3,10 @@ Originally written with TekkenCore, Tranquility is all of the no-stress stuff of
 
 ## Features
 - Player Data and information on the loading screen can be hidden.
-- Streamer Mode hides player names from showing, the game will use a hud similar to Offline Versus mode. (Hides name)
+- Streamer Mode hides player names from showing (the game will use a hud similar to Offline Versus mode).
 - Ranks can be disabled.
 - Player Plates can be hidden.
-- Tekken Power can be disabled.
+- Tekken Power can be hidden.
 
 _Progression Bar hiding and Promotion Text notices will be reimplemented back as options but is currently not available._
 
