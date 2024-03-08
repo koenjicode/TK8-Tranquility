@@ -1,4 +1,4 @@
-# TK8-Tranquility
+# Tranquility: HUD Adjuster for Tekken 8
 Originally written with TekkenCore, **Tranquility** is all of the no-stress stuff of TekkenCore bundled into its lua script, with a handful of new features.
 
 ## Features
