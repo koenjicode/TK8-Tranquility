@@ -3,9 +3,18 @@ local UEHelpers = require("UEHelpers")
 -- LUA SETTINGS #START
 streamerMode = true -- Disables players names from showing.
 
-hidePlayerRanks = true -- Hides player ranks from showing.
+hidePlayerRanks = false -- Hides player ranks from showing.
+
 hidePlayerPlates = false -- Hides player plates so they're not shown.
+
 hideTekkenPower = true -- Hides Tekken Power from showing.
+
+hideProgressBar = true -- Hide Rank Progress bar.
+
+hidePromotions = true -- Hide rank promotions if they occur.
+
+hideRankPrompts = true -- Hides information that says you're near Promotion/Demotion.
+
 disableMakuaiInfo = false -- Hides the Makuai stats all together.
 
 panelOffset = 285 -- The distance that the panel will be moved to when rank information is hidden.
@@ -235,13 +244,44 @@ NotifyOnNewObject("/Script/Polaris.PolarisUMGMakuai", function(makuai)
     end)
 end)
 
+NotifyOnNewObject("/Game/UI/Widget/Result/WBP_UI_Result_RankProgress.WBP_UI_Result_RankProgress_C", function(rankProgress)
+    if hideProgressBar then
+        print("Rank Progress Bar successfully hidden.")
+        rankProgress:SetRenderOpacity(0)
+    end
+end)
+
+NotifyOnNewObject("/Game/UI/Widget/Result/WBP_UI_Result_Promotion.WBP_UI_Result_Promotion_C", function(promotion)
+    if hidePromotions then
+        print("Rank promotion hidden..")
+        promotion:SetRenderOpacity(0)
+    end
+end)
+
+NotifyOnNewObject("/Game/UI/Widget/AppearStage/WBP_UI_AST_Notce_Match.WBP_UI_AST_Notce_Match_C", function(notceMatch)
+    if hideRankPrompts then
+        print("Notce Match information hidden..")
+        notceMatch:SetRenderOpacity(0)
+    end
+end)
+
 -- RegisterHook("/Game/UI/Widget/Makuai/WBP_UI_Makuai.WBP_UI_Makuai_C:PlayAnimIn", function()
 
 function PrintTest()
+    --[[
     local PolarisTAMFunctionLibrary = StaticFindObject("/Script/Polaris.Default__PolarisTAMFunctionLibrary")
     if PolarisTAMFunctionLibrary:IsValid() then
         local playerName = PolarisTAMFunctionLibrary:GetMyPlayerName()
         print(playerName:ToString())
+    end
+    ]]
+
+    local rankProgress = FindFirstOf("WBP_UI_Result_RankProgress_C")
+    if rankProgress:IsValid() then
+        print("Rank progress found.")
+        rankProgress:SetRenderOpacity(0.2)
+    else
+        print("No find!")
     end
 end
 
