@@ -1,9 +1,9 @@
 local UEHelpers = require("UEHelpers")
 
 -- LUA SETTINGS #START
-streamerMode = true -- Disables players names from showing.
+streamerMode = false -- Disables players names from showing.
 
-hidePlayerRanks = false -- Hides player ranks from showing. (Hiding ranks will also hide the promotion texts that appears underneath it)
+hidePlayerRanks = true -- Hides player ranks from showing. (Hiding ranks will also hide the promotion texts that appears underneath it)
 
 hidePlayerPlates = false -- Hides player plates so they're not shown.
 
@@ -11,9 +11,9 @@ hideTekkenPower = true -- Hides Tekken Power from showing.
 
 hideProgressBar = true -- Hide Rank Progress bar.
 
-hidePromotions = true -- Hide rank promotions if they occur.
+hidePromotions = false -- Hide rank promotions if they occur.
 
-hideRankPrompts = false -- Hides information that says you're near Promotion/Demotion.
+hideRankPrompts = true -- Hides information that says you're near Promotion/Demotion.
 
 disableMakuaiInfo = false -- Hides the Makuai stats all together.
 
