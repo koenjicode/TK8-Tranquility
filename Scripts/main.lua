@@ -3,13 +3,13 @@ local UEHelpers = require("UEHelpers")
 -- LUA SETTINGS #START
 streamerMode = true -- Disables players names from showing.
 
-hidePlayerRanks = false -- Hides player ranks from showing.
+hidePlayerRanks = true -- Hides player ranks from showing.
 
 hidePlayerPlates = false -- Hides player plates so they're not shown.
 
-hideTekkenPower = true -- Hides Tekken Power from showing.
+hideTekkenPower = false -- Hides Tekken Power from showing.
 
-hideProgressBar = true -- Hide Rank Progress bar.
+hideProgressBar = false -- Hide Rank Progress bar.
 
 hidePromotions = true -- Hide rank promotions if they occur.
 
@@ -240,6 +240,32 @@ NotifyOnNewObject("/Script/Polaris.PolarisUMGMakuai", function(makuai)
     end)
 end)
 
+NotifyOnNewObject("/Game/UI/Widget/Result/WBP_UI_Result_New.WBP_UI_Result_New_C", function(result)
+    if streamerMode then
+        local rematchMenu = ActorInstance.WBP_UI_Result_New_RematchMenu
+        for i = 1, 2 do
+            local playerList = nil
+            if i == 1 then
+                playerList = rematchMenu.WBP_UI_Result_New_RematchMenu_List_1p
+            else
+                playerList = rematchMenu.WBP_UI_Result_New_RematchMenu_List_2p
+            end
+
+            local iconTexture = playerList.Rep_T_UI_CMN_Character_Icon_List
+            local materialInstance = iconTexture.Brush.ResourceObject
+
+            local texture = materialInstance:K2_GetTextureParameterValue(FName("MainTexture"))
+            local characterName = character_codeTable[GetCharacterNameFromTexture(texture)]
+
+            if materialInstance:IsValid() then
+                print(string.format("Material ID: %s", materialInstance:GetFullName()))
+            end
+
+            playerList:SetName(string.upper(characterName))
+        end
+    end
+end)
+
 NotifyOnNewObject("/Game/UI/Widget/Result/WBP_UI_Result_RankProgress.WBP_UI_Result_RankProgress_C", function(rankProgress)
     if hideProgressBar then
         print("Rank Progress Bar successfully hidden.")
@@ -312,6 +338,36 @@ function PrintTest()
         ref_player:SetRank(0, 22, 0)
     end
     ]]
+
+    local ActorInstances = FindAllOf("WBP_UI_Result_New_C")
+    if not ActorInstances then
+        print("No instances of 'Actor' were found\n")
+    else
+        for Index, ActorInstance in pairs(ActorInstances) do
+            print(string.format("[%d] %s\n", Index, ActorInstance:GetFullName()))
+            local rematchMenu = ActorInstance.WBP_UI_Result_New_RematchMenu
+            for i = 1, 2 do
+                local playerList = nil
+                if i == 1 then
+                    playerList = rematchMenu.WBP_UI_Result_New_RematchMenu_List_1p
+                else
+                    playerList = rematchMenu.WBP_UI_Result_New_RematchMenu_List_2p
+                end
+
+                local iconTexture = playerList.Rep_T_UI_CMN_Character_Icon_List
+                local materialInstance = iconTexture.Brush.ResourceObject
+
+                local texture = materialInstance:K2_GetTextureParameterValue(FName("MainTexture"))
+                local characterName = character_codeTable[GetCharacterNameFromTexture(texture)]
+
+                if materialInstance:IsValid() then
+                    print(string.format("Material ID: %s", materialInstance:GetFullName()))
+                end
+
+                playerList:SetName(string.upper(characterName))
+            end
+        end
+    end
 end
 
 -- For testing updates.
