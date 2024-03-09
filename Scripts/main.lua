@@ -100,7 +100,7 @@ function UpdateGameReferences()
 end
 
 function GetCharacterNameFromTexture(textureToUse)
-    return string.sub(textureToUse.Brush.ResourceObject:GetFullName(), -3)
+    return string.sub(textureToUse:GetFullName(), -3)
 end
 
 function AdjustFighterNames(player)
@@ -114,7 +114,7 @@ function AdjustFighterNames(player)
     end
 
     -- local charSel = string.sub(charImage.Brush.ResourceObject:GetFullName(), -3)
-    local charSel = GetCharacterNameFromTexture(charImage)
+    local charSel = GetCharacterNameFromTexture(charImage.Brush.ResourceObject)
     local nameTexture = StaticFindObject("/Game/UI/Rep_Texture/HUD_Character_Name/T_UI_HUD_Character_Name_" .. charSel .. ".T_UI_HUD_Character_Name_" .. charSel)
     PlayerHud:SetFighterNameTexture(player, nameTexture)
 
@@ -218,27 +218,22 @@ NotifyOnNewObject("/Script/Polaris.PolarisUMGMakuai", function(makuai)
                         charNameTexture = makuai.Rep_T_UI_Makuai_Character_Name_R
                     end
 
-                    --[[
+
                     if charNameTexture:IsValid() then
                         print("Character name texture has been located")
                         local materialInstance = charNameTexture.Brush.ResourceObject
-                        print(materialInstance:GetFullName())
-                        local texture = materialInstance:K2_GetTextureParameterValue("MainTexture")
-                        if texture:IsValid() then
-                            print("How the hell did you find this")
-                        else
-                            print("Texture was not found.")
-                        end
-                        -- print(charNameTexture.Brush.ResourceObject:GetTextureParameterValue("MainTexture"))
+                        local texture = materialInstance:K2_GetTextureParameterValue(FName("MainTexture"))
+
+                        local characterName = character_codeTable[GetCharacterNameFromTexture(texture)]
+                        playerInfo.TB_PlayerID:SetRawText(string.upper(characterName), true)
                     else
                         print("No character name found.")
                     end
 
                     -- local characterName = character_codeTable[GetCharacterNameFromTexture(charNameTexture)]
                     -- print(string.format("Replaced Char Name with: %s", characterName))
-                    ]]
 
-                    playerInfo.TB_PlayerID:SetRawText("TEKKEN PLAYER", true)
+                    -- playerInfo.TB_PlayerID:SetRawText("TEKKEN PLAYER", true)
                 end
             end
         end
@@ -268,6 +263,7 @@ end)
 
 -- RegisterHook("/Game/UI/Widget/Makuai/WBP_UI_Makuai.WBP_UI_Makuai_C:PlayAnimIn", function()
 
+--[[
 RegisterHook("/Game/UI/Widget/HUD/WBP_UI_HUD_Player.WBP_UI_HUD_Player_C:SetRank", function(Context, side, rank, change)
 
     if not rankUpdated then
@@ -281,6 +277,8 @@ RegisterHook("/Game/UI/Widget/HUD/WBP_UI_HUD_Player.WBP_UI_HUD_Player_C:SetRank"
         end
     end
 end)
+]]
+
 
 RegisterHook("/Script/Engine.PlayerController:ClientRestart", function()
     rankUpdated = false
