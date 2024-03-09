@@ -3,13 +3,13 @@ local UEHelpers = require("UEHelpers")
 -- LUA SETTINGS #START
 streamerMode = true -- Disables players names from showing.
 
-hidePlayerRanks = true -- Hides player ranks from showing.
+hidePlayerRanks = true -- Hides player ranks from showing. (Hiding ranks will also hide the promotion texts that appears underneath it)
 
 hidePlayerPlates = false -- Hides player plates so they're not shown.
 
 hideTekkenPower = false -- Hides Tekken Power from showing.
 
-hideProgressBar = false -- Hide Rank Progress bar.
+hideProgressBar = true -- Hide Rank Progress bar.
 
 hidePromotions = true -- Hide rank promotions if they occur.
 
@@ -63,6 +63,8 @@ character_codeTable = {
     ["wlf"] = "Lee",
     ["zbr"] = "Reina",
 }
+
+
 
 
 function OnBattleHudUpdate()
@@ -178,8 +180,9 @@ function AdjustPlayerPanelVisibility()
     shogoPanel:SetVisibility(2)
 end
 
+
 RegisterHook("/Game/UI/Widget/HUD/WBP_UI_HUD_Player.WBP_UI_HUD_Player_C:SetZoneChainVisibility", function()
-   OnBattleHudUpdate()
+    OnBattleHudUpdate()
 end)
 
 NotifyOnNewObject("/Script/Polaris.PolarisUMGMakuai", function(makuai)
@@ -240,38 +243,48 @@ NotifyOnNewObject("/Script/Polaris.PolarisUMGMakuai", function(makuai)
     end)
 end)
 
-NotifyOnNewObject("/Game/UI/Widget/Result/WBP_UI_Result_New.WBP_UI_Result_New_C", function(result)
+NotifyOnNewObject("/Script/Polaris.PolarisUMGResultNew", function(result)
     if streamerMode then
-        local rematchMenu = ActorInstance.WBP_UI_Result_New_RematchMenu
-        for i = 1, 2 do
-            local playerList = nil
-            if i == 1 then
-                playerList = rematchMenu.WBP_UI_Result_New_RematchMenu_List_1p
-            else
-                playerList = rematchMenu.WBP_UI_Result_New_RematchMenu_List_2p
+
+        print("Test execution of UMG edits.")
+        result:SetRenderOpacity(0.0)
+
+        ExecuteWithDelay(60, function()
+
+            print("Test execution of UMG edits.")
+            result:SetRenderOpacity(1)
+            local rematchMenu = result.WBP_UI_Result_New_RematchMenu
+            for i = 1, 2 do
+                local playerList = nil
+                if i == 1 then
+                    playerList = rematchMenu.WBP_UI_Result_New_RematchMenu_List_1p
+                else
+                    playerList = rematchMenu.WBP_UI_Result_New_RematchMenu_List_2p
+                end
+
+                local iconTexture = playerList.Rep_T_UI_CMN_Character_Icon_List
+                local materialInstance = iconTexture.Brush.ResourceObject
+
+                local texture = materialInstance:K2_GetTextureParameterValue(FName("MainTexture"))
+                local characterName = character_codeTable[GetCharacterNameFromTexture(texture)]
+
+                if materialInstance:IsValid() then
+                    print(string.format("Material ID: %s", materialInstance:GetFullName()))
+                end
+
+                playerList:SetName(string.upper(characterName))
             end
-
-            local iconTexture = playerList.Rep_T_UI_CMN_Character_Icon_List
-            local materialInstance = iconTexture.Brush.ResourceObject
-
-            local texture = materialInstance:K2_GetTextureParameterValue(FName("MainTexture"))
-            local characterName = character_codeTable[GetCharacterNameFromTexture(texture)]
-
-            if materialInstance:IsValid() then
-                print(string.format("Material ID: %s", materialInstance:GetFullName()))
-            end
-
-            playerList:SetName(string.upper(characterName))
-        end
+        end)
     end
 end)
 
-NotifyOnNewObject("/Game/UI/Widget/Result/WBP_UI_Result_RankProgress.WBP_UI_Result_RankProgress_C", function(rankProgress)
+-- Rank Progess bar.
+NotifyOnNewObject("/Script/Polaris.PolarisUMGBattleResultRank", function(rankProgress)
     if hideProgressBar then
-        print("Rank Progress Bar successfully hidden.")
         rankProgress:SetRenderOpacity(0)
     end
 end)
+
 
 NotifyOnNewObject("/Game/UI/Widget/Result/WBP_UI_Result_Promotion.WBP_UI_Result_Promotion_C", function(promotion)
     if hidePromotions then
@@ -338,36 +351,6 @@ function PrintTest()
         ref_player:SetRank(0, 22, 0)
     end
     ]]
-
-    local ActorInstances = FindAllOf("WBP_UI_Result_New_C")
-    if not ActorInstances then
-        print("No instances of 'Actor' were found\n")
-    else
-        for Index, ActorInstance in pairs(ActorInstances) do
-            print(string.format("[%d] %s\n", Index, ActorInstance:GetFullName()))
-            local rematchMenu = ActorInstance.WBP_UI_Result_New_RematchMenu
-            for i = 1, 2 do
-                local playerList = nil
-                if i == 1 then
-                    playerList = rematchMenu.WBP_UI_Result_New_RematchMenu_List_1p
-                else
-                    playerList = rematchMenu.WBP_UI_Result_New_RematchMenu_List_2p
-                end
-
-                local iconTexture = playerList.Rep_T_UI_CMN_Character_Icon_List
-                local materialInstance = iconTexture.Brush.ResourceObject
-
-                local texture = materialInstance:K2_GetTextureParameterValue(FName("MainTexture"))
-                local characterName = character_codeTable[GetCharacterNameFromTexture(texture)]
-
-                if materialInstance:IsValid() then
-                    print(string.format("Material ID: %s", materialInstance:GetFullName()))
-                end
-
-                playerList:SetName(string.upper(characterName))
-            end
-        end
-    end
 end
 
 -- For testing updates.
