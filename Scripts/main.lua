@@ -278,7 +278,7 @@ NotifyOnNewObject("/Script/Polaris.PolarisUMGResultNew", function(result)
     end
 end)
 
--- Rank Progess bar.
+-- Rank Progess bar that moves up and down if you win or lose a match.
 NotifyOnNewObject("/Script/Polaris.PolarisUMGBattleResultRank", function(rankProgress)
     if hideProgressBar then
         rankProgress:SetRenderOpacity(0)
@@ -286,14 +286,16 @@ NotifyOnNewObject("/Script/Polaris.PolarisUMGBattleResultRank", function(rankPro
 end)
 
 
-NotifyOnNewObject("/Game/UI/Widget/Result/WBP_UI_Result_Promotion.WBP_UI_Result_Promotion_C", function(promotion)
+-- When your promotion is successful, the rank pop-up that happens.
+NotifyOnNewObject("/Script/Polaris.PolarisUMGBattleResultRank", function(promotion)
     if hidePromotions then
         print("Rank promotion hidden..")
         promotion:SetRenderOpacity(0)
     end
 end)
 
-NotifyOnNewObject("/Game/UI/Widget/AppearStage/WBP_UI_AST_Notce_Match.WBP_UI_AST_Notce_Match_C", function(notceMatch)
+-- Text that pops up saying "PROMOTION CHANCE" or "DEMOTION CHANCE"
+NotifyOnNewObject("/Script/Polaris.PolarisUMGAppearStage", function(notceMatch)
     if hideRankPrompts then
         print("Notce Match information hidden..")
         notceMatch:SetRenderOpacity(0)
