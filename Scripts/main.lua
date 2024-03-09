@@ -9,7 +9,7 @@ hidePlayerPlates = false -- Hides player plates so they're not shown.
 
 hideTekkenPower = false -- Hides Tekken Power from showing.
 
-hideProgressBar = true -- Hide Rank Progress bar.
+hideProgressBar = false -- Hide Rank Progress bar.
 
 hidePromotions = true -- Hide rank promotions if they occur.
 
@@ -282,6 +282,8 @@ end)
 NotifyOnNewObject("/Script/Polaris.PolarisUMGBattleResultRank", function(rankProgress)
     if hideProgressBar then
         rankProgress:SetRenderOpacity(0)
+    else
+        rankProgress:SetRenderOpacity(1)
     end
 end)
 
@@ -291,6 +293,8 @@ NotifyOnNewObject("/Script/Polaris.PolarisUMGBattleResultRank", function(promoti
     if hidePromotions then
         print("Rank promotion hidden..")
         promotion:SetRenderOpacity(0)
+    else
+        promotion:SetRenderOpacity(1)
     end
 end)
 
@@ -299,6 +303,8 @@ NotifyOnNewObject("/Script/Polaris.PolarisUMGAppearStage", function(notceMatch)
     if hideRankPrompts then
         print("Notce Match information hidden..")
         notceMatch:SetRenderOpacity(0)
+    else
+        notceMatch:SetRenderOpacity(1)
     end
 end)
 
@@ -334,16 +340,13 @@ function PrintTest()
     end
     ]]
 
-    --[[
-
     local rankProgress = FindFirstOf("WBP_UI_Result_RankProgress_C")
     if rankProgress:IsValid() then
         print("Rank progress found.")
-        rankProgress:SetRenderOpacity(0.2)
+        rankProgress:SetRenderOpacity(1)
     else
         print("No find!")
     end
-    ]]
 
     --[[
     local player = FindFirstOf("WBP_UI_HUD_C")
