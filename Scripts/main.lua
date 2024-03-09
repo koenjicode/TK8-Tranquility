@@ -3,17 +3,17 @@ local UEHelpers = require("UEHelpers")
 -- LUA SETTINGS #START
 streamerMode = true -- Disables players names from showing.
 
-hidePlayerRanks = true -- Hides player ranks from showing. (Hiding ranks will also hide the promotion texts that appears underneath it)
+hidePlayerRanks = false -- Hides player ranks from showing. (Hiding ranks will also hide the promotion texts that appears underneath it)
 
 hidePlayerPlates = false -- Hides player plates so they're not shown.
 
-hideTekkenPower = false -- Hides Tekken Power from showing.
+hideTekkenPower = true -- Hides Tekken Power from showing.
 
-hideProgressBar = false -- Hide Rank Progress bar.
+hideProgressBar = true -- Hide Rank Progress bar.
 
 hidePromotions = true -- Hide rank promotions if they occur.
 
-hideRankPrompts = true -- Hides information that says you're near Promotion/Demotion.
+hideRankPrompts = false -- Hides information that says you're near Promotion/Demotion.
 
 disableMakuaiInfo = false -- Hides the Makuai stats all together.
 
@@ -251,7 +251,6 @@ NotifyOnNewObject("/Script/Polaris.PolarisUMGResultNew", function(result)
 
         ExecuteWithDelay(60, function()
 
-            print("Test execution of UMG edits.")
             result:SetRenderOpacity(1)
             local rematchMenu = result.WBP_UI_Result_New_RematchMenu
             for i = 1, 2 do
@@ -289,7 +288,7 @@ end)
 
 
 -- When your promotion is successful, the rank pop-up that happens.
-NotifyOnNewObject("/Script/Polaris.PolarisUMGBattleResultRank", function(promotion)
+NotifyOnNewObject("/Script/Polaris.PolarisUMGBattleResult", function(promotion)
     if hidePromotions then
         print("Rank promotion hidden..")
         promotion:SetRenderOpacity(0)
