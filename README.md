@@ -2,13 +2,13 @@
 Originally written with TekkenCore, **Tranquility** is all of the no-stress stuff of TekkenCore bundled into its lua script, with a handful of new features.
 
 ## Features
-- Player Data and information on the loading screen can be hidden.
-- Streamer Mode hides player names from showing (the game will use a hud similar to Offline Versus mode).
-- Ranks can be disabled.
-- Player Plates can be hidden.
-- Tekken Power can be hidden.
-
-_Progression Bar hiding and Promotion Text notices will be reimplemented back as options but is currently not available._
+- Player Data and information on the loading screen can be hidden!
+- Rank Progress Bar can be hidden!
+- Promotion Text can be hidden!
+- Streamer Mode replaces Player Names with Character Names!
+- Ranks can be hidden!
+- Player Plates can be hidden!
+- Tekken Power can be hidden!
 
 ## Adjusting Settings
 **Tranquility** has many setting options that can be adjusted.
