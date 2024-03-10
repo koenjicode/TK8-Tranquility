@@ -1,6 +1,8 @@
 local UEHelpers = require("UEHelpers")
 
 -- LUA SETTINGS #START
+disableAll = false -- Disables Tranquility, regardless of settings.
+
 streamerMode = false -- Disables players names from showing.
 
 hidePlayerRanks = true -- Hides player ranks from showing. (Hiding ranks will also hide the promotion texts that appears underneath it)
@@ -18,7 +20,6 @@ hideRankPrompts = true -- Hides information that says you're near Promotion/Demo
 disableMakuaiInfo = false -- Hides the Makuai stats all together.
 
 panelOffset = 285 -- The distance that the panel will be moved to when rank information is hidden.
-
 -- LUA SETTINGS #END
 
 WidgetLayoutLibrary = nil
@@ -66,8 +67,12 @@ character_codeTable = {
 
 
 
-
+-- Main Update function
 function OnBattleHudUpdate()
+
+    if disableAll then
+        return
+    end
 
     -- We make sure game references for the hud are up to date before we do any changes.
     UpdateGameReferences()
@@ -80,17 +85,23 @@ function OnBattleHudUpdate()
     for i = 1, 2 do
         local playerIndex = i - 1
 
+        -- Code to hide Player Names
         if streamerMode then
             AdjustFighterNames(playerIndex)
         end
 
+        -- Code to hide Tekken Power.
         if hideTekkenPower then
             AdjustTekkenPowerVisbility(playerIndex)
         end
 
+        -- Code to hide player ranks.
         if hidePlayerRanks then
             AdjustRankVisibility(playerIndex)
         end
+
+        -- Hide Player Plates.
+        AdjustPlayerPlates(playerIndex)
     end
 end
 
@@ -103,6 +114,35 @@ end
 
 function GetCharacterNameFromTexture(textureToUse)
     return string.sub(textureToUse:GetFullName(), -3)
+end
+
+function AdjustPlayerPlates(player)
+
+    local shogoPanel = nil
+
+    if player == 0 then
+        shogoPanel = PlayerHud.WBP_UI_ShogoPanel_L
+    else
+        shogoPanel = PlayerHud.WBP_UI_ShogoPanel_R
+    end
+
+    if hidePlayerPlates then
+        shogoPanel:SetVisibility(2)
+    else
+        if not hidePlayerRanks then
+            local ref_canvas = WidgetLayoutLibrary:SlotAsCanvasSlot(shogoPanel)
+            local panelPos = {
+                ["X"] = defaultPanelPos.X - panelOffset,
+                ["Y"] = defaultPanelPos.Y,
+            }
+
+            if player == 1 then
+                panelPos.X = (panelPos.X * -1 )
+            end
+
+            ref_canvas:SetPosition(panelPos)
+        end
+    end
 end
 
 function AdjustFighterNames(player)
@@ -120,17 +160,19 @@ function AdjustFighterNames(player)
     local nameTexture = StaticFindObject("/Game/UI/Rep_Texture/HUD_Character_Name/T_UI_HUD_Character_Name_" .. charSel .. ".T_UI_HUD_Character_Name_" .. charSel)
     PlayerHud:SetFighterNameTexture(player, nameTexture)
 
-    local ghosticon = nil
-    if player == 0 then
-        ghosticon = PlayerHud.Ghost_Icon_L
-    else
-        ghosticon = PlayerHud.Gh_Icon_R
-    end
+    -- Add a slight delay to make sure it's probably catching the Ghost Icon.
+    ExecuteWithDelay(100, function()
+        local ghosticon = nil
+        if player == 0 then
+            ghosticon = PlayerHud.Ghost_Icon_L
+        else
+            ghosticon = PlayerHud.Gh_Icon_R
+        end
 
-    if ghosticon:IsValid() then
-        ghosticon:SetVisibility(2)
-    end
-
+        if ghosticon:IsValid() then
+            ghosticon:SetVisibility(2)
+        end
+    end)
 end
 
 function AdjustTekkenPowerVisbility(player)
@@ -148,36 +190,13 @@ end
 function AdjustRankVisibility(player)
 
     local rnkRoot = nil
-    local shogoPanel = nil
-
     if player == 0 then
         rnkRoot = PlayerHud.RNK_Root_L
-        shogoPanel = PlayerHud.WBP_UI_ShogoPanel_L
     else
         rnkRoot = PlayerHud.RNK_Root_R
-        shogoPanel = PlayerHud.WBP_UI_ShogoPanel_R
     end
 
     rnkRoot:SetVisibility(2)
-
-    -- Depending of the ranks are hidden or not, we adjust the position.
-    if not hidePlayerPlates then
-        local ref_canvas = WidgetLayoutLibrary:SlotAsCanvasSlot(shogoPanel)
-        local panelPos = {
-            ["X"] = defaultPanelPos.X - panelOffset,
-            ["Y"] = defaultPanelPos.Y,
-        }
-
-        if player == 1 then
-            panelPos.X = (panelPos.X * -1 )
-        end
-
-        ref_canvas:SetPosition(panelPos)
-    end
-end
-
-function AdjustPlayerPanelVisibility()
-    shogoPanel:SetVisibility(2)
 end
 
 
@@ -186,7 +205,9 @@ RegisterHook("/Game/UI/Widget/HUD/WBP_UI_HUD_Player.WBP_UI_HUD_Player_C:SetZoneC
 end)
 
 NotifyOnNewObject("/Script/Polaris.PolarisUMGMakuai", function(makuai)
-    -- print(string.format("Constructed: %s\n", makuai:GetFullName()))
+    if disableAll then
+        return
+    end
 
     ExecuteWithDelay(500, function()
         -- print("Executed asynchronously after a 1 second delay\n")
@@ -244,6 +265,11 @@ NotifyOnNewObject("/Script/Polaris.PolarisUMGMakuai", function(makuai)
 end)
 
 NotifyOnNewObject("/Script/Polaris.PolarisUMGResultNew", function(result)
+
+    if disableAll then
+        return
+    end
+
     if streamerMode then
 
         print("Test execution of UMG edits.")
@@ -279,7 +305,8 @@ end)
 
 -- Rank Progess bar that moves up and down if you win or lose a match.
 NotifyOnNewObject("/Script/Polaris.PolarisUMGBattleResultRank", function(rankProgress)
-    if hideProgressBar then
+
+    if hideProgressBar and not disableAll then
         rankProgress:SetRenderOpacity(0)
     else
         rankProgress:SetRenderOpacity(1)
@@ -289,7 +316,8 @@ end)
 
 -- When your promotion is successful, the rank pop-up that happens.
 NotifyOnNewObject("/Script/Polaris.PolarisUMGBattleResult", function(promotion)
-    if hidePromotions then
+
+    if hidePromotions and not disableAll then
         print("Rank promotion hidden..")
         promotion:SetRenderOpacity(0)
     else
@@ -299,7 +327,7 @@ end)
 
 -- Text that pops up saying "PROMOTION CHANCE" or "DEMOTION CHANCE"
 NotifyOnNewObject("/Script/Polaris.PolarisUMGAppearStage", function(notceMatch)
-    if hideRankPrompts then
+    if hideRankPrompts and not disableAll then
         print("Notce Match information hidden..")
         notceMatch:SetRenderOpacity(0)
     else
