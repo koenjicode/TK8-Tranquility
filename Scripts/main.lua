@@ -5,13 +5,12 @@ local widget_layout_library = nil
 local polaris_hud = nil
 local player_hud = nil
 
+if config.disable_everything then
+    return
+end
+
 -- Main Update function
 function onBattleHudUpdate()
-
-    if config.disable_everything then
-        return
-    end
-
     -- We make sure game references for the hud are up to date before we do any changes.
     updateGameReferences()
 
@@ -43,7 +42,7 @@ function onBattleHudUpdate()
         end
 
         -- Hide Player Plates.
-        adjustPlayerPlates(playerIndex)
+        adjustPlayerPanels(playerIndex)
     end
 end
 
@@ -63,8 +62,7 @@ function adjustWinStreak(playerIndex)
     end
 end
 
-function adjustPlayerPlates(player)
-
+function adjustPlayerPanels(player)
     local _shogo_panel = nil
 
     if player == 0 then
@@ -76,7 +74,7 @@ function adjustPlayerPlates(player)
     if config.hide_player_panels then
         _shogo_panel:SetVisibility(2)
     else
-        if config.hide_player_panels then
+        if config.hide_player_ranks then
             local _ref_canvas = widget_layout_library:SlotAsCanvasSlot(_shogo_panel)
             local _panel_position = {
                 ["X"] = helper.default_panel_position.X - config.panel_offset,
@@ -84,7 +82,7 @@ function adjustPlayerPlates(player)
             }
 
             if player == 1 then
-                helper.default_panel_position.X = (helper.default_panel_position.X * -1 )
+                _panel_position.X = (_panel_position.X * -1 )
             end
 
             _ref_canvas:SetPosition(_panel_position)
@@ -106,7 +104,6 @@ function adjustFighterNames(player)
     local _name_texture = StaticFindObject("/Game/UI/Rep_Texture/HUD_Character_Name/T_UI_HUD_Character_Name_" .. _char_brush .. ".T_UI_HUD_Character_Name_" .. _char_brush)
     player_hud:SetFighterNameTexture(player, _name_texture)
 
-    -- Add a slight delay to make sure it's probably catching the Ghost Icon.
     ExecuteWithDelay(100, function()
         local _ghost_icon = nil
         if player == 0 then
@@ -145,19 +142,12 @@ function adjustRankVisibility(player)
     _rank_root:SetVisibility(2)
 end
 
-
 RegisterHook("/Game/UI/Widget/HUD/WBP_UI_HUD_Player.WBP_UI_HUD_Player_C:SetZoneChainVisibility", function()
     onBattleHudUpdate()
 end)
 
 NotifyOnNewObject("/Script/Polaris.PolarisUMGMakuai", function(makuai)
-    if config.disable_everything then
-        return
-    end
-
     ExecuteWithDelay(500, function()
-        -- print("Executed asynchronously after a 1 second delay\n")
-
         for i = 1, 2 do
             local _player_info = nil
             if i == 1 then
@@ -193,7 +183,7 @@ NotifyOnNewObject("/Script/Polaris.PolarisUMGMakuai", function(makuai)
                         -- print("Character name texture has been located")
                         local _material_instance = _character_name_texture.Brush.ResourceObject
                         local _texture = _material_instance:K2_GetTextureParameterValue(FName("MainTexture"))
-                        
+
                         local name = helper.getCharacterNameFromTexture(_texture)
                         -- print(string.format("Found Character Name: %s", name))
                         local text_name = nil
@@ -213,14 +203,7 @@ NotifyOnNewObject("/Script/Polaris.PolarisUMGMakuai", function(makuai)
 end)
 
 NotifyOnNewObject("/Script/Polaris.PolarisUMGResultNew", function(result)
-
-    if config.disable_everything then
-        return
-    end
-
     if config.streamer_mode then
-
-        -- print("Test execution of UMG edits.")
         result:SetRenderOpacity(0.0)
 
         ExecuteWithDelay(60, function()
@@ -241,7 +224,7 @@ NotifyOnNewObject("/Script/Polaris.PolarisUMGResultNew", function(result)
                 local texture = _material_instance:K2_GetTextureParameterValue(FName("MainTexture"))
 
                 local name = helper.getCharacterNameFromTexture(texture)
-                print(string.format("Found Character Name: %s", name))
+                -- print(string.format("Found Character Name: %s", name))
                 local text_name = nil
 
                 if helper.tableContains(helper.character_codes, name) then
@@ -258,8 +241,7 @@ end)
 
 -- Rank Progess bar that moves up and down if you win or lose a match.
 NotifyOnNewObject("/Script/Polaris.PolarisUMGBattleResultRank", function(rankProgress)
-
-    if not config.disable_everything and config.hide_progress_bar then
+    if config.hide_progress_bar then
         rankProgress:SetRenderOpacity(0)
     else
         rankProgress:SetRenderOpacity(1)
@@ -269,8 +251,7 @@ end)
 
 -- When your promotion is successful, the rank pop-up that happens.
 NotifyOnNewObject("/Script/Polaris.PolarisUMGBattleResult", function(promotion)
-
-    if not config.disable_everything and config.hide_rank_promotions then
+    if config.hide_rank_promotions then
         -- print("Rank promotion hidden..")
         promotion:SetRenderOpacity(0)
     else
@@ -280,7 +261,7 @@ end)
 
 -- Text that pops up saying "PROMOTION CHANCE" or "DEMOTION CHANCE"
 NotifyOnNewObject("/Script/Polaris.PolarisUMGAppearStage", function(notceMatch)
-    if config.disable_everything and not config.hide_rank_prompts then
+    if config.hide_rank_prompts then
         -- print("Notce Match information hidden..")
         notceMatch:SetRenderOpacity(0)
     else
