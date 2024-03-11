@@ -1,72 +1,23 @@
 local config = require "config"
+local helper = require "helper"
 
-WidgetLayoutLibrary = nil
-PolarisHud = nil
-PlayerHud = nil
-defaultPanelPos = {
-    ["X"] = 625,
-    ["Y"] = 362,
-}
-character_codeTable = {
-    ["aml"] = "Jun",
-    ["ant"] = "Jin",
-    ["bbn"] = "Raven",
-    ["bsn"] = "Steve",
-    ["cat"] = "Azucena",
-    ["ccn"] = "Jack-8",
-    ["cht"] = "Bryan",
-    ["cml"] = "Yoshimitsu",
-    ["crw"] = "Zafina",
-    ["ctr"] = "Claudio",
-    ["der"] = "Asuka",
-    ["ghp"] = "Leo",
-    ["grf"] = "Paul",
-    ["grl"] = "Kazuya",
-    ["hms"] = "Lili",
-    ["hrs"] = "Shaheen",
-    ["jly"] = "Leroy",
-    ["kal"] = "Nina",
-    ["klw"] = "Feng",
-    ["kmd"] = "Dragunov",
-    ["lon"] = "Victor",
-    ["lzd"] = "Lars",
-    ["mnt"] = "Alisa",
-    ["pgn"] = "King",
-    ["pig"] = "Law",
-    ["rat"] = "Xiaoyu",
-    ["rbt"] = "Kuma",
-    ["snk"] = "Hwoarang",
-    ["swl"] = "Devil Jin",
-    ["ttr"] = "Panda",
-    ["wlf"] = "Lee",
-    ["zbr"] = "Reina",
-}
-
-function table_contains(tbl, x)
-    found = false
-    for _, v in pairs(tbl) do
-        if _ == x then
-            found = true
-        end
-    end
-    return found
-end
-
-
+local widget_layout_library = nil
+local polaris_hud = nil
+local player_hud = nil
 
 -- Main Update function
-function OnBattleHudUpdate()
+function onBattleHudUpdate()
 
     if config.disable_everything then
         return
     end
 
     -- We make sure game references for the hud are up to date before we do any changes.
-    UpdateGameReferences()
+    updateGameReferences()
 
     -- Stop execution if we fail to get any of the required hud elements.
-    if not PlayerHud:IsValid() then error("Player Hud cannot be found, Tranquility cannot make changes!") end
-    if not WidgetLayoutLibrary:IsValid() then error("WidgetLayoutLibrary not valid, Tranquility cannot make changes!\n") end
+    if not player_hud:IsValid() then error("Player Hud cannot be found, Tranquility cannot make changes!") end
+    if not widget_layout_library:IsValid() then error("WidgetLayoutLibrary not valid, Tranquility cannot make changes!\n") end
 
     -- Loop logic for P1 and P2
     for i = 1, 2 do
@@ -74,136 +25,129 @@ function OnBattleHudUpdate()
 
         -- Code to hide Player Names
         if config.streamer_mode then
-            AdjustFighterNames(playerIndex)
+            adjustFighterNames(playerIndex)
         end
 
         -- Code to hide Tekken Power.
         if config.hide_tekken_power then
-            AdjustTekkenPowerVisbility(playerIndex)
+            adjustTekkenPowerVisbility(playerIndex)
         end
 
         -- Code to hide player ranks.
         if config.hide_player_ranks then
-            AdjustRankVisibility(playerIndex)
+            adjustRankVisibility(playerIndex)
         end
 
         if config.hide_win_streaks then
-            AdjustWinStreak(playerIndex)
+            adjustWinStreak(playerIndex)
         end
 
         -- Hide Player Plates.
-        AdjustPlayerPlates(playerIndex)
+        adjustPlayerPlates(playerIndex)
     end
 end
 
-function AdjustWinStreak(playerIndex)
-    local information = PolarisHud.ref_information
-    -- information.SetWinningStreak(playerIndex, 0, false)
+function updateGameReferences()
+    widget_layout_library = StaticFindObject("/Script/UMG.Default__WidgetLayoutLibrary")
+
+    polaris_hud = FindFirstOf("WBP_UI_HUD_C")
+    player_hud = polaris_hud.ref_player
+end
+
+function adjustWinStreak(playerIndex)
+    local _information = polaris_hud.ref_information
     if playerIndex == 0 then
-        information.WINS_L:SetVisibility(2)
+        _information.WINS_L:SetVisibility(2)
     else
-        information.WINS_R:SetVisibility(2)
+        _information.WINS_R:SetVisibility(2)
     end
 end
 
-function UpdateGameReferences()
-    WidgetLayoutLibrary = StaticFindObject("/Script/UMG.Default__WidgetLayoutLibrary")
+function adjustPlayerPlates(player)
 
-    PolarisHud = FindFirstOf("WBP_UI_HUD_C")
-    PlayerHud = PolarisHud.ref_player
-end
-
-function GetCharacterNameFromTexture(textureToUse)
-    name = string.sub(textureToUse:GetFullName(), -3)
-    return name
-end
-
-function AdjustPlayerPlates(player)
-
-    local shogoPanel = nil
+    local _shogo_panel = nil
 
     if player == 0 then
-        shogoPanel = PlayerHud.WBP_UI_ShogoPanel_L
+        _shogo_panel = player_hud.WBP_UI_ShogoPanel_L
     else
-        shogoPanel = PlayerHud.WBP_UI_ShogoPanel_R
+        _shogo_panel = player_hud.WBP_UI_ShogoPanel_R
     end
 
     if config.hide_player_panels then
-        shogoPanel:SetVisibility(2)
+        _shogo_panel:SetVisibility(2)
     else
         if config.hide_player_panels then
-            local ref_canvas = WidgetLayoutLibrary:SlotAsCanvasSlot(shogoPanel)
-            local panelPos = {
-                ["X"] = defaultPanelPos.X - config.panel_offset,
-                ["Y"] = defaultPanelPos.Y,
+            local _ref_canvas = widget_layout_library:SlotAsCanvasSlot(_shogo_panel)
+            local _panel_position = {
+                ["X"] = helper.default_panel_position.X - config.panel_offset,
+                ["Y"] = helper.default_panel_position.Y,
             }
 
             if player == 1 then
-                panelPos.X = (panelPos.X * -1 )
+                helper.default_panel_position.X = (helper.default_panel_position.X * -1 )
             end
 
-            ref_canvas:SetPosition(panelPos)
+            _ref_canvas:SetPosition(_panel_position)
         end
     end
 end
 
-function AdjustFighterNames(player)
-    PlayerHud:SetFighterNameTexture2(player, nil)
+function adjustFighterNames(player)
+    player_hud:SetFighterNameTexture2(player, nil)
 
-    local charImage = nil
+    local _char_image = nil
     if player == 0 then
-        charImage = PlayerHud.Rep_T_UI_HUD_CH_ICON_L
+        _char_image = player_hud.Rep_T_UI_HUD_CH_ICON_L
     else
-        charImage = PlayerHud.Rep_T_UI_HUD_CH_ICON_R
+        _char_image = player_hud.Rep_T_UI_HUD_CH_ICON_R
     end
 
-    -- local charSel = string.sub(charImage.Brush.ResourceObject:GetFullName(), -3)
-    local charSel = GetCharacterNameFromTexture(charImage.Brush.ResourceObject)
-    local name_texture = StaticFindObject("/Game/UI/Rep_Texture/HUD_Character_Name/T_UI_HUD_Character_Name_" .. charSel .. ".T_UI_HUD_Character_Name_" .. charSel)
-    PlayerHud:SetFighterNameTexture(player, name_texture)
+    local _char_brush = helper.getCharacterNameFromTexture(_char_image.Brush.ResourceObject)
+    local _name_texture = StaticFindObject("/Game/UI/Rep_Texture/HUD_Character_Name/T_UI_HUD_Character_Name_" .. _char_brush .. ".T_UI_HUD_Character_Name_" .. _char_brush)
+    player_hud:SetFighterNameTexture(player, _name_texture)
 
     -- Add a slight delay to make sure it's probably catching the Ghost Icon.
     ExecuteWithDelay(100, function()
-        local ghosticon = nil
+        local _ghost_icon = nil
         if player == 0 then
-            ghosticon = PlayerHud.Ghost_Icon_L
+            _ghost_icon = player_hud.Ghost_Icon_L
         else
-            ghosticon = PlayerHud.Gh_Icon_R
+            _ghost_icon = player_hud.Gh_Icon_R
         end
 
-        if ghosticon:IsValid() then
-            ghosticon:SetVisibility(2)
+        if _ghost_icon:IsValid() then
+            _ghost_icon:SetVisibility(2)
         end
     end)
 end
 
-function AdjustTekkenPowerVisbility(player)
+function adjustTekkenPowerVisbility(player)
 
-    local powerRoot = nil
+    local _tekken_power_root = nil
     if player == 0 then
-        powerRoot = PlayerHud.TekkenPower_Root_L
+        _tekken_power_root = player_hud.TekkenPower_Root_L
     else
-        powerRoot = PlayerHud.TekkenPower_Root_R
+        _tekken_power_root = player_hud.TekkenPower_Root_R
     end
 
-    powerRoot:SetVisibility(2)
+    _tekken_power_root:SetVisibility(2)
 end
 
-function AdjustRankVisibility(player)
+function adjustRankVisibility(player)
 
-    local rnkRoot = nil
+    local _rank_root = nil
     if player == 0 then
-        rnkRoot = PlayerHud.RNK_Root_L
+        _rank_root = player_hud.RNK_Root_L
     else
-        rnkRoot = PlayerHud.RNK_Root_R
+        _rank_root = player_hud.RNK_Root_R
     end
 
-    rnkRoot:SetVisibility(2)
+    _rank_root:SetVisibility(2)
 end
 
 
 RegisterHook("/Game/UI/Widget/HUD/WBP_UI_HUD_Player.WBP_UI_HUD_Player_C:SetZoneChainVisibility", function()
-    OnBattleHudUpdate()
+    onBattleHudUpdate()
 end)
 
 NotifyOnNewObject("/Script/Polaris.PolarisUMGMakuai", function(makuai)
@@ -215,60 +159,53 @@ NotifyOnNewObject("/Script/Polaris.PolarisUMGMakuai", function(makuai)
         -- print("Executed asynchronously after a 1 second delay\n")
 
         for i = 1, 2 do
-            local playerInfo = nil
+            local _player_info = nil
             if i == 1 then
-                playerInfo = makuai.WBP_UI_PlayerInfo_L
+                _player_info = makuai.WBP_UI_PlayerInfo_L
             else
-                playerInfo = makuai.WBP_UI_PlayerInfo_R
+                _player_info = makuai.WBP_UI_PlayerInfo_R
             end
 
             if config.hide_makuai_info then
-                playerInfo:SetVisibility(2)
+                _player_info:SetVisibility(2)
             else
                 if config.hide_player_ranks then
-                    playerInfo.Rep_T_UI_CMN_RNK_S:SetVisibility(2)
+                    _player_info.Rep_T_UI_CMN_RNK_S:SetVisibility(2)
                 end
 
                 if config.hide_tekken_power then
-                    playerInfo.BG_TekkenPower:SetVisibility(2)
-                    playerInfo.TB_TekkenPower:SetVisibility(2)
-                    playerInfo.TB_TekkenPower_data:SetVisibility(2)
+                    _player_info.BG_TekkenPower:SetVisibility(2)
+                    _player_info.TB_TekkenPower:SetVisibility(2)
+                    _player_info.TB_TekkenPower_data:SetVisibility(2)
                 end
 
                 if config.streamer_mode then
 
-                    local charNameTexture = nil
+                    local _character_name_texture = nil
                     if i == 1 then
-                        charNameTexture = makuai.Rep_T_UI_Makuai_Character_Name_L
+                        _character_name_texture = makuai.Rep_T_UI_Makuai_Character_Name_L
                     else
-                        charNameTexture = makuai.Rep_T_UI_Makuai_Character_Name_R
+                        _character_name_texture = makuai.Rep_T_UI_Makuai_Character_Name_R
                     end
 
 
-                    if charNameTexture:IsValid() then
+                    if _character_name_texture:IsValid() then
                         -- print("Character name texture has been located")
-                        local materialInstance = charNameTexture.Brush.ResourceObject
-                        local texture = materialInstance:K2_GetTextureParameterValue(FName("MainTexture"))
+                        local _material_instance = _character_name_texture.Brush.ResourceObject
+                        local _texture = _material_instance:K2_GetTextureParameterValue(FName("MainTexture"))
                         
-                        local name = GetCharacterNameFromTexture(texture)
+                        local name = helper.getCharacterNameFromTexture(_texture)
                         -- print(string.format("Found Character Name: %s", name))
                         local text_name = nil
 
-                        if table_contains(character_codeTable, name) then
-                            text_name = character_codeTable[name]
+                        if helper.tableContains(helper.character_codes, name) then
+                            text_name = helper.character_codes[name]
                         else
                             text_name = "???"
                         end
 
-                        playerInfo.TB_PlayerID:SetRawText(string.upper(text_name), true)
-                    else
-                        -- print("No character name found.")
+                        _player_info.TB_PlayerID:SetRawText(string.upper(text_name), true)
                     end
-
-                    -- local characterName = character_codeTable[GetCharacterNameFromTexture(charNameTexture)]
-                    -- print(string.format("Replaced Char Name with: %s", characterName))
-
-                    -- playerInfo.TB_PlayerID:SetRawText("TEKKEN PLAYER", true)
                 end
             end
         end
@@ -289,31 +226,31 @@ NotifyOnNewObject("/Script/Polaris.PolarisUMGResultNew", function(result)
         ExecuteWithDelay(60, function()
 
             result:SetRenderOpacity(1)
-            local rematchMenu = result.WBP_UI_Result_New_RematchMenu
+            local _rematch_menu = result.WBP_UI_Result_New_RematchMenu
             for i = 1, 2 do
-                local playerList = nil
+                local _player_list = nil
                 if i == 1 then
-                    playerList = rematchMenu.WBP_UI_Result_New_RematchMenu_List_1p
+                    _player_list = _rematch_menu.WBP_UI_Result_New_RematchMenu_List_1p
                 else
-                    playerList = rematchMenu.WBP_UI_Result_New_RematchMenu_List_2p
+                    _player_list = _rematch_menu.WBP_UI_Result_New_RematchMenu_List_2p
                 end
 
-                local iconTexture = playerList.Rep_T_UI_CMN_Character_Icon_List
-                local materialInstance = iconTexture.Brush.ResourceObject
+                local _icon_texture = _player_list.Rep_T_UI_CMN_Character_Icon_List
+                local _material_instance = _icon_texture.Brush.ResourceObject
 
-                local texture = materialInstance:K2_GetTextureParameterValue(FName("MainTexture"))
+                local texture = _material_instance:K2_GetTextureParameterValue(FName("MainTexture"))
 
-                local name = GetCharacterNameFromTexture(texture)
+                local name = helper.getCharacterNameFromTexture(texture)
                 print(string.format("Found Character Name: %s", name))
                 local text_name = nil
 
-                if table_contains(character_codeTable, name) then
-                    text_name = character_codeTable[name]
+                if helper.tableContains(helper.character_codes, name) then
+                    text_name = helper.character_codes[name]
                 else
                     text_name = "???"
                 end
 
-                playerList:SetName(string.upper(text_name))
+                _player_list:SetName(string.upper(text_name))
             end
         end)
     end
