@@ -1,7 +1,7 @@
 -- LUA SETTINGS #START
 disableAll = false -- Disables Tranquility, regardless of settings.
 
-streamerMode = false -- Disables players names from showing.
+streamerMode = true -- Disables players names from showing.
 
 hidePlayerRanks = false -- Hides player ranks from showing. (Hiding ranks will also hide the promotion texts that appears underneath it)
 
@@ -63,6 +63,16 @@ character_codeTable = {
     ["zbr"] = "Reina",
 }
 
+function table_contains(tbl, x)
+    found = false
+    for _, v in pairs(tbl) do
+        if _ == x then
+            found = true
+        end
+    end
+    return found
+end
+
 
 
 -- Main Update function
@@ -111,7 +121,8 @@ function UpdateGameReferences()
 end
 
 function GetCharacterNameFromTexture(textureToUse)
-    return string.sub(textureToUse:GetFullName(), -3)
+    name = string.sub(textureToUse:GetFullName(), -3)
+    return name
 end
 
 function AdjustPlayerPlates(player)
@@ -155,8 +166,8 @@ function AdjustFighterNames(player)
 
     -- local charSel = string.sub(charImage.Brush.ResourceObject:GetFullName(), -3)
     local charSel = GetCharacterNameFromTexture(charImage.Brush.ResourceObject)
-    local nameTexture = StaticFindObject("/Game/UI/Rep_Texture/HUD_Character_Name/T_UI_HUD_Character_Name_" .. charSel .. ".T_UI_HUD_Character_Name_" .. charSel)
-    PlayerHud:SetFighterNameTexture(player, nameTexture)
+    local name_texture = StaticFindObject("/Game/UI/Rep_Texture/HUD_Character_Name/T_UI_HUD_Character_Name_" .. charSel .. ".T_UI_HUD_Character_Name_" .. charSel)
+    PlayerHud:SetFighterNameTexture(player, name_texture)
 
     -- Add a slight delay to make sure it's probably catching the Ghost Icon.
     ExecuteWithDelay(100, function()
@@ -242,14 +253,23 @@ NotifyOnNewObject("/Script/Polaris.PolarisUMGMakuai", function(makuai)
 
 
                     if charNameTexture:IsValid() then
-                        print("Character name texture has been located")
+                        -- print("Character name texture has been located")
                         local materialInstance = charNameTexture.Brush.ResourceObject
                         local texture = materialInstance:K2_GetTextureParameterValue(FName("MainTexture"))
+                        
+                        local name = GetCharacterNameFromTexture(texture)
+                        -- print(string.format("Found Character Name: %s", name))
+                        local text_name = nil
 
-                        local characterName = character_codeTable[GetCharacterNameFromTexture(texture)]
-                        playerInfo.TB_PlayerID:SetRawText(string.upper(characterName), true)
+                        if table_contains(character_codeTable, name) then
+                            text_name = character_codeTable[name]
+                        else
+                            text_name = "???"
+                        end
+
+                        playerInfo.TB_PlayerID:SetRawText(string.upper(text_name), true)
                     else
-                        print("No character name found.")
+                        -- print("No character name found.")
                     end
 
                     -- local characterName = character_codeTable[GetCharacterNameFromTexture(charNameTexture)]
@@ -270,7 +290,7 @@ NotifyOnNewObject("/Script/Polaris.PolarisUMGResultNew", function(result)
 
     if streamerMode then
 
-        print("Test execution of UMG edits.")
+        -- print("Test execution of UMG edits.")
         result:SetRenderOpacity(0.0)
 
         ExecuteWithDelay(60, function()
@@ -289,13 +309,18 @@ NotifyOnNewObject("/Script/Polaris.PolarisUMGResultNew", function(result)
                 local materialInstance = iconTexture.Brush.ResourceObject
 
                 local texture = materialInstance:K2_GetTextureParameterValue(FName("MainTexture"))
-                local characterName = character_codeTable[GetCharacterNameFromTexture(texture)]
 
-                if materialInstance:IsValid() then
-                    print(string.format("Material ID: %s", materialInstance:GetFullName()))
+                local name = GetCharacterNameFromTexture(texture)
+                print(string.format("Found Character Name: %s", name))
+                local text_name = nil
+
+                if table_contains(character_codeTable, name) then
+                    text_name = character_codeTable[name]
+                else
+                    text_name = "???"
                 end
 
-                playerList:SetName(string.upper(characterName))
+                playerList:SetName(string.upper(text_name))
             end
         end)
     end
@@ -316,7 +341,7 @@ end)
 NotifyOnNewObject("/Script/Polaris.PolarisUMGBattleResult", function(promotion)
 
     if hidePromotions and not disableAll then
-        print("Rank promotion hidden..")
+        -- print("Rank promotion hidden..")
         promotion:SetRenderOpacity(0)
     else
         promotion:SetRenderOpacity(1)
@@ -326,7 +351,7 @@ end)
 -- Text that pops up saying "PROMOTION CHANCE" or "DEMOTION CHANCE"
 NotifyOnNewObject("/Script/Polaris.PolarisUMGAppearStage", function(notceMatch)
     if hideRankPrompts and not disableAll then
-        print("Notce Match information hidden..")
+        -- print("Notce Match information hidden..")
         notceMatch:SetRenderOpacity(0)
     else
         notceMatch:SetRenderOpacity(1)
@@ -367,10 +392,10 @@ function PrintTest()
 
     local rankProgress = FindFirstOf("WBP_UI_Result_RankProgress_C")
     if rankProgress:IsValid() then
-        print("Rank progress found.")
+        -- print("Rank progress found.")
         rankProgress:SetRenderOpacity(1)
     else
-        print("No find!")
+        -- print("No find!")
     end
 
     --[[
@@ -384,4 +409,4 @@ function PrintTest()
 end
 
 -- For testing updates.
-RegisterKeyBind(Key.F8, PrintTest)
+-- RegisterKeyBind(Key.F8, PrintTest)
