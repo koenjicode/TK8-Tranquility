@@ -1,11 +1,9 @@
-local UEHelpers = require("UEHelpers")
-
 -- LUA SETTINGS #START
 disableAll = false -- Disables Tranquility, regardless of settings.
 
 streamerMode = false -- Disables players names from showing.
 
-hidePlayerRanks = true -- Hides player ranks from showing. (Hiding ranks will also hide the promotion texts that appears underneath it)
+hidePlayerRanks = false -- Hides player ranks from showing. (Hiding ranks will also hide the promotion texts that appears underneath it)
 
 hidePlayerPlates = false -- Hides player plates so they're not shown.
 
@@ -129,7 +127,7 @@ function AdjustPlayerPlates(player)
     if hidePlayerPlates then
         shogoPanel:SetVisibility(2)
     else
-        if not hidePlayerRanks then
+        if hidePlayerRanks then
             local ref_canvas = WidgetLayoutLibrary:SlotAsCanvasSlot(shogoPanel)
             local panelPos = {
                 ["X"] = defaultPanelPos.X - panelOffset,
