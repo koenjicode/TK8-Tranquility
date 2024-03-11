@@ -1,7 +1,7 @@
 -- LUA SETTINGS #START
 disableAll = false -- Disables Tranquility, regardless of settings.
 
-streamerMode = true -- Disables players names from showing.
+streamerMode = false -- Disables players names from showing.
 
 hidePlayerRanks = false -- Hides player ranks from showing. (Hiding ranks will also hide the promotion texts that appears underneath it)
 
@@ -14,6 +14,8 @@ hideProgressBar = true -- Hide Rank Progress bar.
 hidePromotions = false -- Hide rank promotions if they occur.
 
 hideRankPrompts = true -- Hides information that says you're near Promotion/Demotion.
+
+hideWinStreaks = true -- Hides Win Streak information.
 
 disableMakuaiInfo = false -- Hides the Makuai stats all together.
 
@@ -108,8 +110,22 @@ function OnBattleHudUpdate()
             AdjustRankVisibility(playerIndex)
         end
 
+        if hideWinStreaks then
+            AdjustWinStreak(playerIndex)
+        end
+
         -- Hide Player Plates.
         AdjustPlayerPlates(playerIndex)
+    end
+end
+
+function AdjustWinStreak(playerIndex)
+    local information = PolarisHud.ref_information
+    -- information.SetWinningStreak(playerIndex, 0, false)
+    if playerIndex == 0 then
+        information.WINS_L:SetVisibility(2)
+    else
+        information.WINS_R:SetVisibility(2)
     end
 end
 
