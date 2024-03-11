@@ -1,31 +1,8 @@
--- LUA SETTINGS #START
-disableAll = false -- Disables Tranquility, regardless of settings.
-
-streamerMode = false -- Disables players names from showing.
-
-hidePlayerRanks = false -- Hides player ranks from showing. (Hiding ranks will also hide the promotion texts that appears underneath it)
-
-hidePlayerPlates = false -- Hides player plates so they're not shown.
-
-hideTekkenPower = true -- Hides Tekken Power from showing.
-
-hideProgressBar = true -- Hide Rank Progress bar.
-
-hidePromotions = false -- Hide rank promotions if they occur.
-
-hideRankPrompts = true -- Hides information that says you're near Promotion/Demotion.
-
-hideWinStreaks = true -- Hides Win Streak information.
-
-disableMakuaiInfo = false -- Hides the Makuai stats all together.
-
-panelOffset = 285 -- The distance that the panel will be moved to when rank information is hidden.
--- LUA SETTINGS #END
+local config = require "config"
 
 WidgetLayoutLibrary = nil
 PolarisHud = nil
 PlayerHud = nil
-rankUpdated = false
 defaultPanelPos = {
     ["X"] = 625,
     ["Y"] = 362,
@@ -80,7 +57,7 @@ end
 -- Main Update function
 function OnBattleHudUpdate()
 
-    if disableAll then
+    if config.disable_everything then
         return
     end
 
@@ -96,21 +73,21 @@ function OnBattleHudUpdate()
         local playerIndex = i - 1
 
         -- Code to hide Player Names
-        if streamerMode then
+        if config.streamer_mode then
             AdjustFighterNames(playerIndex)
         end
 
         -- Code to hide Tekken Power.
-        if hideTekkenPower then
+        if config.hide_tekken_power then
             AdjustTekkenPowerVisbility(playerIndex)
         end
 
         -- Code to hide player ranks.
-        if hidePlayerRanks then
+        if config.hide_player_ranks then
             AdjustRankVisibility(playerIndex)
         end
 
-        if hideWinStreaks then
+        if config.hide_win_streaks then
             AdjustWinStreak(playerIndex)
         end
 
@@ -151,13 +128,13 @@ function AdjustPlayerPlates(player)
         shogoPanel = PlayerHud.WBP_UI_ShogoPanel_R
     end
 
-    if hidePlayerPlates then
+    if config.hide_player_panels then
         shogoPanel:SetVisibility(2)
     else
-        if hidePlayerRanks then
+        if config.hide_player_panels then
             local ref_canvas = WidgetLayoutLibrary:SlotAsCanvasSlot(shogoPanel)
             local panelPos = {
-                ["X"] = defaultPanelPos.X - panelOffset,
+                ["X"] = defaultPanelPos.X - config.panel_offset,
                 ["Y"] = defaultPanelPos.Y,
             }
 
@@ -230,7 +207,7 @@ RegisterHook("/Game/UI/Widget/HUD/WBP_UI_HUD_Player.WBP_UI_HUD_Player_C:SetZoneC
 end)
 
 NotifyOnNewObject("/Script/Polaris.PolarisUMGMakuai", function(makuai)
-    if disableAll then
+    if config.disable_everything then
         return
     end
 
@@ -245,20 +222,20 @@ NotifyOnNewObject("/Script/Polaris.PolarisUMGMakuai", function(makuai)
                 playerInfo = makuai.WBP_UI_PlayerInfo_R
             end
 
-            if disableMakuaiInfo then
+            if config.hide_makuai_info then
                 playerInfo:SetVisibility(2)
             else
-                if hidePlayerRanks then
+                if config.hide_player_ranks then
                     playerInfo.Rep_T_UI_CMN_RNK_S:SetVisibility(2)
                 end
 
-                if hideTekkenPower then
+                if config.hide_tekken_power then
                     playerInfo.BG_TekkenPower:SetVisibility(2)
                     playerInfo.TB_TekkenPower:SetVisibility(2)
                     playerInfo.TB_TekkenPower_data:SetVisibility(2)
                 end
 
-                if streamerMode then
+                if config.streamer_mode then
 
                     local charNameTexture = nil
                     if i == 1 then
@@ -300,11 +277,11 @@ end)
 
 NotifyOnNewObject("/Script/Polaris.PolarisUMGResultNew", function(result)
 
-    if disableAll then
+    if config.disable_everything then
         return
     end
 
-    if streamerMode then
+    if config.streamer_mode then
 
         -- print("Test execution of UMG edits.")
         result:SetRenderOpacity(0.0)
@@ -345,7 +322,7 @@ end)
 -- Rank Progess bar that moves up and down if you win or lose a match.
 NotifyOnNewObject("/Script/Polaris.PolarisUMGBattleResultRank", function(rankProgress)
 
-    if hideProgressBar and not disableAll then
+    if not config.disable_everything and config.hide_progress_bar then
         rankProgress:SetRenderOpacity(0)
     else
         rankProgress:SetRenderOpacity(1)
@@ -356,7 +333,7 @@ end)
 -- When your promotion is successful, the rank pop-up that happens.
 NotifyOnNewObject("/Script/Polaris.PolarisUMGBattleResult", function(promotion)
 
-    if hidePromotions and not disableAll then
+    if not config.disable_everything and config.hide_rank_promotions then
         -- print("Rank promotion hidden..")
         promotion:SetRenderOpacity(0)
     else
@@ -366,63 +343,10 @@ end)
 
 -- Text that pops up saying "PROMOTION CHANCE" or "DEMOTION CHANCE"
 NotifyOnNewObject("/Script/Polaris.PolarisUMGAppearStage", function(notceMatch)
-    if hideRankPrompts and not disableAll then
+    if config.disable_everything and not config.hide_rank_prompts then
         -- print("Notce Match information hidden..")
         notceMatch:SetRenderOpacity(0)
     else
         notceMatch:SetRenderOpacity(1)
     end
 end)
-
--- RegisterHook("/Game/UI/Widget/Makuai/WBP_UI_Makuai.WBP_UI_Makuai_C:PlayAnimIn", function()
-
---[[
-RegisterHook("/Game/UI/Widget/HUD/WBP_UI_HUD_Player.WBP_UI_HUD_Player_C:SetRank", function(Context, side, rank, change)
-
-    if not rankUpdated then
-        rankUpdated = true
-
-        print(string.format("Player Side: %s Rank: %s\n", side:get(), rank:get()))
-
-        if Context:get() then
-            -- print("Attempting to replace side.")
-            -- Context:get():SetRank(side:get(), rank:get(), 0)
-        end
-    end
-end)
-]]
-
-
-RegisterHook("/Script/Engine.PlayerController:ClientRestart", function()
-    rankUpdated = false
-end)
-
-function PrintTest()
-    --[[
-    local PolarisTAMFunctionLibrary = StaticFindObject("/Script/Polaris.Default__PolarisTAMFunctionLibrary")
-    if PolarisTAMFunctionLibrary:IsValid() then
-        local playerName = PolarisTAMFunctionLibrary:GetMyPlayerName()
-        print(playerName:ToString())
-    end
-    ]]
-
-    local rankProgress = FindFirstOf("WBP_UI_Result_RankProgress_C")
-    if rankProgress:IsValid() then
-        -- print("Rank progress found.")
-        rankProgress:SetRenderOpacity(1)
-    else
-        -- print("No find!")
-    end
-
-    --[[
-    local player = FindFirstOf("WBP_UI_HUD_C")
-    local ref_player = player.ref_player
-    if ref_player:IsValid() then
-        print("Rank change supposed to happen")
-        ref_player:SetRank(0, 22, 0)
-    end
-    ]]
-end
-
--- For testing updates.
--- RegisterKeyBind(Key.F8, PrintTest)
