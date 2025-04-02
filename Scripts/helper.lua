@@ -37,6 +37,11 @@ local tranquility_helper = {
         ["ttr"] = "Panda",
         ["wlf"] = "Lee",
         ["zbr"] = "Reina",
+        ["dog"] = "Eddy",
+        ["cbr"] = "Lidia",
+        ["bee"] = "Heihachi",
+        ["okm"] = "Clive",
+        ["kgr"] = "Anna",
     },
 }
 
@@ -51,6 +56,7 @@ function tranquility_helper.tableContains(tbl, x)
 end
 
 function tranquility_helper.getCharacterNameFromTexture(texture)
+    print(texture:GetFullName())
     name = string.sub(texture:GetFullName(), -3)
     return name
 end

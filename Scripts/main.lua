@@ -5,6 +5,8 @@ local widget_layout_library = nil
 local polaris_hud = nil
 local player_hud = nil
 
+local hudRegistered = false
+
 if config.disable_everything then
     return
 end
@@ -17,6 +19,8 @@ function onBattleHudUpdate()
     -- Stop execution if we fail to get any of the required hud elements.
     if not player_hud:IsValid() then error("Player Hud cannot be found, Tranquility cannot make changes!") end
     if not widget_layout_library:IsValid() then error("WidgetLayoutLibrary not valid, Tranquility cannot make changes!\n") end
+
+    print("Hud hooked, applying changes")
 
     -- Loop logic for P1 and P2
     for i = 1, 2 do
@@ -48,8 +52,9 @@ end
 
 function updateGameReferences()
     widget_layout_library = StaticFindObject("/Script/UMG.Default__WidgetLayoutLibrary")
+    print("Finding HUD")
 
-    polaris_hud = FindFirstOf("WBP_UI_HUD_C")
+    polaris_hud = FindFirstOf("WBP_UI_HUD_S2_C")
     player_hud = polaris_hud.ref_player
 end
 
@@ -95,10 +100,12 @@ function adjustFighterNames(player)
 
     local _char_image = nil
     if player == 0 then
-        _char_image = player_hud.Rep_T_UI_HUD_CH_ICON_L
+        _char_image = player_hud.WBP_UI_HUD_Char_Icon_1P.Rep_T_UI_HUD_CH_ICON_L
     else
-        _char_image = player_hud.Rep_T_UI_HUD_CH_ICON_R
+        _char_image = player_hud.WBP_UI_HUD_Char_Icon_2P.Rep_T_UI_HUD_CH_ICON_R
     end
+
+    print(_char_image:GetFullName())
 
     local _char_brush = helper.getCharacterNameFromTexture(_char_image.Brush.ResourceObject)
     local _name_texture = StaticFindObject("/Game/UI/Rep_Texture/HUD_Character_Name/T_UI_HUD_Character_Name_" .. _char_brush .. ".T_UI_HUD_Character_Name_" .. _char_brush)
@@ -141,10 +148,6 @@ function adjustRankVisibility(player)
 
     _rank_root:SetVisibility(2)
 end
-
-RegisterHook("/Game/UI/Widget/HUD/WBP_UI_HUD_Player.WBP_UI_HUD_Player_C:SetZoneChainVisibility", function()
-    onBattleHudUpdate()
-end)
 
 NotifyOnNewObject("/Script/Polaris.PolarisUMGMakuai", function(makuai)
     ExecuteWithDelay(500, function()
@@ -267,4 +270,25 @@ NotifyOnNewObject("/Script/Polaris.PolarisUMGAppearStage", function(notceMatch)
     else
         notceMatch:SetRenderOpacity(1)
     end
+end)
+
+-- When your promotion is successful, the rank pop-up that happens.
+NotifyOnNewObject("/Script/Polaris.PolarisUMGMainMenu", function(main_menu)
+    print("Run hide code for main menu")
+    ExecuteWithDelay(500, function()
+        -- hideItemsMainMenu(main_menu)
+    end)
+end)
+
+-- When your promotion is successful, the rank pop-up that happens.
+NotifyOnNewObject("/Script/Polaris.PolarisUMGHudGauge", function()
+    if not hudRegistered then
+
+        hudRegistered = true
+        RegisterHook("/Game/UI/Widget/HUD/S2/WBP_UI_HUD_Player_S2.WBP_UI_HUD_Player_S2_C:SetZoneChainVisibility", function()
+            onBattleHudUpdate()
+        end)
+    end
+
+    return true
 end)

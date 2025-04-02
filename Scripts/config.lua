@@ -2,7 +2,7 @@
 
 local _mod_config = {
     -- Disables Tranquility, regardless of settings (Added to Tranquility with v.1.1.1).
-    disable_everything = true,
+    disable_everything = false,
 
     -- Disables player names from showing.
     -- This does NOT apply the changes on the other player's client, the other player will still be able to see your name as these changes are purely client side (like everything else in this mod!).
@@ -22,24 +22,27 @@ local _mod_config = {
 
     -- Hides Tekken Prowess/Power from showing.
     -- This will also hide prowess in the loading screen.
-    hide_tekken_power = false,
+    hide_tekken_power = true,
 
     -- Hide Rank Progress bar.
-    hide_progress_bar = false,
+    hide_progress_bar = true,
 
     -- If a rank promotion occurs, it won't show it (You've been promoted to this rank etc;).
     -- This does NOT hide the "This is the first time you've reached this rank". Blame the Tekken Team for that. :(
-    hide_rank_promotions = false,
+    hide_rank_promotions = true,
 
     -- Hides information that says you're near Promotion/Demotion.
     -- This does NOT hide the text underneath ranks. To hide that set "hide_player_ranks" to true.
     hide_rank_prompts = true,
 
     -- Hides Win Streaks that appear at the bottom of the screen (Added to Tranquility with v.1.2.0).
-    hide_win_streaks = true,
+    hide_win_streaks = false,
 
     -- Hides Player Stats info on the "GET READY FOR THE NEXT BATTLE" screen.
     hide_makuai_info = false,
+
+    -- Hides Battle Pass progression info in the main menu, and end match screens.
+    -- hide_battle_pass_info = false,
 }
 
 return _mod_config
